@@ -94,15 +94,18 @@ public class MainActivity extends AppCompatActivity {
     private void sendMessage(String message) {
         if (outputStream != null) {
             try {
-                // Enviar bytes al servidor (Capítulo 6.3.2)
-                outputStream.write(message.getBytes());
+                // CIFRAMOS EL MENSAJE AQUÍ (Capítulo 8)
+                String mensajeCifrado = Seguridad.cifrar(message);
+
+                outputStream.write(mensajeCifrado.getBytes());
                 outputStream.flush();
-            } catch (IOException e) {
+                statusText.setText("Enviado (Cifrado): " + mensajeCifrado);
+            } catch (Exception e) {
                 e.printStackTrace();
-                statusText.setText("Error al enviar datos");
             }
         }
     }
+
 
     private void startListening() {
         // Hilo secundario para no bloquear la pantalla (Capítulo 6.4)
