@@ -10,7 +10,7 @@ public class Seguridad {
 
     public static String cifrar(String mensaje) throws Exception {
         SecretKeySpec key = new SecretKeySpec(LLAVE.getBytes(), "AES");
-        Cipher cipher = Cipher.Cipher.getInstance("AES");
+        Cipher cipher = Cipher.getInstance("AES");
         cipher.init(Cipher.ENCRYPT_MODE, key);
         byte[] encVal = cipher.doFinal(mensaje.getBytes());
         return Base64.encodeToString(encVal, Base64.DEFAULT);
