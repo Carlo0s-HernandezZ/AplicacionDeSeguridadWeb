@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         if (pairedDevices.size() > 0) {
             for (BluetoothDevice device : pairedDevices) {
                 // TRUCO: Aquí puedes filtrar por nombre si tienes muchos dispositivos
-                // Ejemplo: if (device.getName().equals("LAPTOP-T50..."))
+
                 pcDevice = device; // Por ahora tomamos el último o el único
                 break;
             }

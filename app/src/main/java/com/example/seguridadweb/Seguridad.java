@@ -24,7 +24,7 @@ public class Seguridad {
             return Base64.encodeToString(bytesCifrados, Base64.NO_WRAP);
 
         } catch (Exception e) {
-            // Esto nos dirá en el Logcat qué está fallando realmente
+            // Logcat para saber las fallas
             e.printStackTrace();
             return "ERRROR: " + e.getMessage();
         }
