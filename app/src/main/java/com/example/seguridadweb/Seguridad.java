@@ -1,57 +1,32 @@
 package com.example.seguridadweb;
 
-import android.content.Context;
-import android.security.keystore.KeyGenParameterSpec;
-import android.security.keystore.KeyProperties;
 import android.util.Base64;
-import java.security.KeyStore;
 import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 public class Seguridad {
+    // La llave DEBE ser exactamente de 16 caracteres para AES-128
+    private static final String LLAVE = "EstaEsUnaLlave12";
 
-    private static final String ANDROID_KEY_STORE = "AndroidKeyStore";
-    private static final String ALIAS = "mi_llave_segura";
-    private static final String TRANSFORMATION = "AES/GCM/NoPadding";
-
-    public static String cifrar(String mensaje, Context context) {
+    public static String cifrar(String mensaje, android.content.Context context) {
         try {
-            KeyStore keyStore = KeyStore.getInstance(ANDROID_KEY_STORE);
-            keyStore.load(null);
+            // 1. Crear la llave secreta en bytes
+            SecretKeySpec keySpec = new SecretKeySpec(LLAVE.getBytes("UTF-8"), "AES");
 
-            // Generar llave en hardware si no existe
-            if (!keyStore.containsAlias(ALIAS)) {
-                KeyGenerator keyGenerator = KeyGenerator.getInstance(
-                        KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEY_STORE);
+            // 2. Usar AES con Padding (relleno) para que acepte cualquier longitud de texto
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, keySpec);
 
-                keyGenerator.init(new KeyGenParameterSpec.Builder(ALIAS,
-                        KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                        .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                        .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                        .build());
-                keyGenerator.generateKey();
-            }
+            // 3. Cifrar
+            byte[] bytesCifrados = cipher.doFinal(mensaje.getBytes("UTF-8"));
 
-            // Proceso de cifrado
-            SecretKey key = (SecretKey) keyStore.getKey(ALIAS, null);
-            Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-            cipher.init(Cipher.ENCRYPT_MODE, key);
-
-            byte[] iv = cipher.getIV(); // Vector de inicialización
-            byte[] encryption = cipher.doFinal(mensaje.getBytes("UTF-8"));
-
-            // Combinamos IV + Datos cifrados para que el receptor pueda descifrar
-            byte[] combined = new byte[iv.length + encryption.length];
-            System.arraycopy(iv, 0, combined, 0, iv.length);
-            System.arraycopy(encryption, 0, combined, iv.length, encryption.length);
-
-            return Base64.encodeToString(combined, Base64.DEFAULT);
+            // 4. Convertir a Base64 para enviar por Bluetooth
+            return Base64.encodeToString(bytesCifrados, Base64.NO_WRAP);
 
         } catch (Exception e) {
+            // Esto nos dirá en el Logcat qué está fallando realmente
             e.printStackTrace();
-            return "ERROR_CIFRADO";
+            return "ERRROR: " + e.getMessage();
         }
     }
 }
